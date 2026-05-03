@@ -18,7 +18,7 @@ Downloads the [install script](https://github.com/MDFahimAnjum/shellclaw/blob/ma
 curl -fsSL https://raw.githubusercontent.com/MDFahimAnjum/shellclaw/main/install.sh | bash
 ```
 
-### 2. Manual install (no “curl \| bash”)
+### 2. Manual install
 
 If you prefer not to pipe a remote script straight into the shell:
 

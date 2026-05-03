@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ShellClaw — a lightweight LLM-powered terminal assistant TUI for everyday users."
+    />
+    <title>ShellClaw</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #ffffff;
+        --bg-soft: #f4f6f9;
+        --fg: #0f172a;
+        --muted: #64748b;
+        --card: #ffffff;
+        --border: #e2e8f0;
+        --accent: #0d6efd;
+        --accent-hover: #0a58ca;
+        --accent-soft: #e8f1ff;
+        --code-bg: #f1f5f9;
+        --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+        --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 10px 24px -4px rgba(15, 23, 42, 0.08);
+        --radius: 12px;
+        --radius-lg: 16px;
+        --coral: #e8554e;
+        --teal: #0d9488;
+        --window-chrome: #fafbfc;
+        --terminal-bg: #f8fafc;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        color-scheme: light;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+        line-height: 1.6;
+        color: var(--fg);
+        background: var(--bg);
+        background-image: radial-gradient(ellipse 120% 80% at 50% -20%, #e8f1ff 0%, transparent 55%);
+      }
+      .wrap {
+        max-width: 42rem;
+        margin: 0 auto;
+        padding: 3rem 1.5rem 4rem;
+      }
+      .hero {
+        margin-bottom: 2.25rem;
+      }
+      h1 {
+        font-size: clamp(2rem, 5vw, 2.65rem);
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 1.15;
+        margin: 0 0 0.5rem;
+        color: var(--fg);
+      }
+      .tagline {
+        color: var(--muted);
+        font-size: 1.125rem;
+        font-weight: 500;
+        margin: 0 0 0.65rem;
+      }
+      .hero-meta {
+        list-style: none;
+        margin: 0 0 1.35rem;
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.45rem;
+      }
+      .hero-meta li {
+        margin: 0;
+      }
+      .meta-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.38rem 0.75rem;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        border-radius: 999px;
+        box-shadow: var(--shadow-sm);
+        text-decoration: none;
+        border: 1px solid transparent;
+        transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease,
+          box-shadow 0.15s ease;
+      }
+      .meta-pill--github {
+        background: #eff6ff;
+        border-color: #bfdbfe;
+        color: #1e3a5f;
+      }
+      .meta-pill--github .meta-icon {
+        color: #2563eb;
+      }
+      a.meta-pill--github:hover {
+        background: #dbeafe;
+        border-color: #93c5fd;
+        color: #0f172a;
+      }
+      a.meta-pill--github:hover .meta-icon {
+        color: #1d4ed8;
+      }
+      .meta-pill--oss {
+        background: #ecfdf5;
+        border-color: #a7f3d0;
+        color: #064e3b;
+      }
+      .meta-pill--oss .meta-icon {
+        color: #059669;
+      }
+      a.meta-pill--oss:hover {
+        background: #d1fae5;
+        border-color: #6ee7b7;
+        color: #022c22;
+      }
+      a.meta-pill--oss:hover .meta-icon {
+        color: #047857;
+      }
+      .meta-pill--local {
+        background: #fffbeb;
+        border-color: #fde68a;
+        color: #713f12;
+      }
+      .meta-pill--local .meta-icon {
+        color: #b45309;
+      }
+      .meta-pill--secured {
+        background: #fef2f2;
+        border-color: #fecaca;
+        color: #7f1d1d;
+      }
+      .meta-pill--secured .meta-icon {
+        color: #dc2626;
+      }
+      .meta-pill--agent {
+        background: #faf5ff;
+        border-color: #e9d5ff;
+        color: #581c87;
+      }
+      .meta-pill--agent .meta-icon {
+        color: #9333ea;
+      }
+      a.meta-pill:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+      span.meta-pill {
+        cursor: default;
+      }
+      .meta-pill .meta-label {
+        line-height: 1.2;
+        letter-spacing: -0.01em;
+      }
+      .meta-pill .meta-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .meta-pill svg {
+        display: block;
+      }
+      .meta-icon-github svg {
+        width: 17px;
+        height: 17px;
+      }
+      .meta-icon-mit svg {
+        width: 34px;
+        height: 15px;
+      }
+      .meta-icon-stroke svg {
+        width: 18px;
+        height: 18px;
+      }
+      .lead {
+        margin: 0;
+        font-size: 1.0625rem;
+        color: #334155;
+        max-width: 38em;
+      }
+      .content-section {
+        margin: 3rem 0 2.5rem;
+      }
+      .content-section--cards > h2 {
+        font-size: 1.35rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        line-height: 1.2;
+        margin: 0 0 1.15rem;
+        color: var(--fg);
+        padding-bottom: 0.65rem;
+        border-bottom: 2px solid #e2e8f0;
+      }
+      .card-grid {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: 1fr;
+      }
+      @media (min-width: 540px) {
+        .card-grid--2 {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .card-grid--features {
+          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        }
+      }
+      .info-card,
+      .feature-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 1.15rem 1.25rem 1.2rem;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.04);
+        transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+      }
+      .info-card:hover,
+      .feature-card:hover {
+        border-color: #cbd5e1;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.07), 0 2px 6px rgba(15, 23, 42, 0.05);
+        transform: translateY(-1px);
+      }
+      .info-card h3,
+      .feature-card h3 {
+        font-size: 1.05rem;
+        font-weight: 700;
+        margin: 0 0 0.55rem;
+        color: var(--fg);
+        letter-spacing: -0.02em;
+        line-height: 1.25;
+      }
+      .info-card p,
+      .feature-card p {
+        margin: 0;
+        font-size: 0.95rem;
+        color: #475569;
+        line-height: 1.58;
+      }
+      .info-card p + p,
+      .feature-card p + p {
+        margin-top: 0.5rem;
+      }
+      .info-card em,
+      .feature-card em {
+        font-style: italic;
+      }
+      .info-card code,
+      .feature-card code {
+        font-size: 0.86em;
+        background: #f1f5f9;
+        padding: 0.12em 0.38em;
+        border-radius: 5px;
+        border: 1px solid #e2e8f0;
+      }
+      .info-card__eyebrow {
+        display: inline-block;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #64748b;
+        margin-bottom: 0.45rem;
+      }
+      .info-card--accent-a {
+        background: linear-gradient(135deg, #fff 0%, #f8fafc 100%);
+        border-color: #e2e8f0;
+      }
+      .info-card--accent-b {
+        background: linear-gradient(135deg, #fffefb 0%, #fff7ed 100%);
+        border-color: #fed7aa;
+      }
+      .feature-card__num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 1.75rem;
+        height: 1.75rem;
+        font-size: 0.72rem;
+        font-weight: 700;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        color: #0d9488;
+        background: #ccfbf1;
+        border: 1px solid #99f6e4;
+        border-radius: 8px;
+        margin-bottom: 0.65rem;
+      }
+      .feature-card--wide {
+        grid-column: 1 / -1;
+      }
+      .subcommands-card {
+        margin-top: 0.25rem;
+      }
+      .subcommands-card h3 {
+        margin-bottom: 0.75rem;
+      }
+      .subcommands-card .subcommands-inner {
+        background: #0f172a;
+        color: #e2e8f0;
+        border-radius: 10px;
+        padding: 1rem 1.1rem;
+        border: 1px solid #1e293b;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      }
+      .subcommands-card pre {
+        margin: 0;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.78rem;
+        line-height: 1.55;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+      }
+      .section-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--muted);
+        margin: 0 0 0.5rem;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 1rem 1rem 1.1rem;
+        margin: 2rem 0 2.5rem;
+        box-shadow: var(--shadow-md);
+      }
+      .card video {
+        display: block;
+        width: 100%;
+        height: auto;
+        border-radius: var(--radius);
+        background: #0f172a;
+        box-shadow: var(--shadow-sm);
+      }
+      code {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+      }
+      .quick-start {
+        margin-top: 0.25rem;
+      }
+      .qs-title {
+        margin: 0 0 0.75rem;
+        font-size: 1.2rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: var(--fg);
+      }
+      .qs-title .qs-chevron {
+        color: var(--coral);
+        font-weight: 700;
+        margin-right: 0.2em;
+      }
+      .qs-window {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 8px 30px rgba(15, 23, 42, 0.08), 0 2px 6px rgba(15, 23, 42, 0.04);
+      }
+      .qs-chrome {
+        display: flex;
+        align-items: center;
+        padding: 0.55rem 0.85rem;
+        background: var(--window-chrome);
+        border-bottom: 1px solid var(--border);
+      }
+      .qs-traffic {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .qs-traffic .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        box-shadow: inset 0 -1px 1px rgba(0, 0, 0, 0.12);
+      }
+      .qs-traffic .dot-red {
+        background: #ff5f57;
+      }
+      .qs-traffic .dot-yellow {
+        background: #febc2e;
+      }
+      .qs-traffic .dot-green {
+        background: #28c840;
+      }
+      .qs-body {
+        position: relative;
+        background: var(--terminal-bg);
+        padding: 1rem 3rem 1.1rem 1.1rem;
+        border-top: 1px solid #eef2f6;
+      }
+      .qs-comment {
+        margin: 0 0 0.65rem;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.78rem;
+        font-style: italic;
+        color: #94a3b8;
+        line-height: 1.45;
+      }
+      .qs-line {
+        margin: 0;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.8125rem;
+        line-height: 1.55;
+        color: var(--fg);
+        white-space: normal;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+      }
+      .qs-line #install-cmd {
+        font-family: inherit;
+        font-size: inherit;
+        background: none;
+        padding: 0;
+        border: 0;
+        color: inherit;
+        white-space: normal;
+        overflow-wrap: anywhere;
+      }
+      .qs-prompt {
+        color: var(--coral);
+        font-weight: 600;
+        user-select: none;
+        margin-right: 0.35em;
+      }
+      .qs-copy {
+        position: absolute;
+        right: 0.55rem;
+        bottom: 0.55rem;
+        width: 2.25rem;
+        height: 2.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: #fff;
+        color: #64748b;
+        cursor: pointer;
+        box-shadow: var(--shadow-sm);
+        transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease,
+          transform 0.1s ease;
+      }
+      .qs-copy:hover:not(:disabled) {
+        color: var(--teal);
+        border-color: #99f6e4;
+        background: #f0fdfa;
+      }
+      .qs-copy:active:not(:disabled) {
+        transform: scale(0.96);
+      }
+      .qs-copy:disabled {
+        cursor: default;
+      }
+      .qs-copy.is-copied {
+        color: #15803d;
+        border-color: #86efac;
+        background: #f0fdf4;
+      }
+      .qs-copy.is-error {
+        color: #b91c1c;
+        border-color: #fecaca;
+        background: #fef2f2;
+      }
+      .qs-copy:focus-visible {
+        outline: 2px solid var(--teal);
+        outline-offset: 2px;
+      }
+      .qs-copy svg {
+        display: block;
+      }
+      .qs-hint {
+        margin: 0.75rem 0 0;
+        font-size: 0.8125rem;
+        color: var(--muted);
+      }
+      .qs-hint code {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.78em;
+        background: #fff;
+        padding: 0.1em 0.35em;
+        border-radius: 4px;
+        border: 1px solid var(--border);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="hero">
+        <h1>ShellClaw</h1>
+        <p class="tagline">Optimized terminal agent for every user</p>
+        <ul class="hero-meta" role="list">
+          <li>
+            <a class="meta-pill meta-pill--github" href="https://github.com/MDFahimAnjum/shellclaw">
+              <span class="meta-label">GitHub</span>
+              <span class="meta-icon meta-icon-github" aria-hidden="true">
+                <svg viewBox="0 0 16 16" fill="currentColor">
+                  <path
+                    d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"
+                  />
+                </svg>
+              </span>
+            </a>
+          </li>
+          <li>
+            <a class="meta-pill meta-pill--oss" href="https://github.com/MDFahimAnjum/shellclaw/blob/main/LICENSE">
+              <span class="meta-label">Open source</span>
+              <span class="meta-icon meta-icon-mit" aria-hidden="true">
+                <svg viewBox="0 0 36 16" fill="none">
+                  <rect width="36" height="16" rx="3" fill="#111827" />
+                  <text
+                    x="18"
+                    y="12"
+                    text-anchor="middle"
+                    fill="#fff"
+                    font-size="8.5"
+                    font-weight="700"
+                    font-family="Plus Jakarta Sans, system-ui, sans-serif"
+                  >
+                    MIT
+                  </text>
+                </svg>
+              </span>
+            </a>
+          </li>
+          <li>
+            <span class="meta-pill meta-pill--local">
+              <span class="meta-label">Local</span>
+              <span class="meta-icon meta-icon-stroke" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                  <line x1="8" y1="21" x2="16" y2="21" />
+                  <line x1="12" y1="17" x2="12" y2="21" />
+                </svg>
+              </span>
+            </span>
+          </li>
+          <li>
+            <span class="meta-pill meta-pill--secured">
+              <span class="meta-label">Secured</span>
+              <span class="meta-icon meta-icon-stroke" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  <path d="m9 12 2 2 4-4" />
+                </svg>
+              </span>
+            </span>
+          </li>
+          <li>
+            <span class="meta-pill meta-pill--agent">
+              <span class="meta-label">Agent</span>
+              <span class="meta-icon meta-icon-stroke" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
+                </svg>
+              </span>
+            </span>
+          </li>
+        </ul>
+        <p class="lead">
+          ShellClaw is an efficient LLM-powered terminal assistant TUI for everyday users. It runs safe read-only commands, explains what it finds in plain
+          English, and proposes next steps.
+        </p>
+      </header>
+
+      <div class="card">
+        <video
+          src="assets/intro.webm"
+          controls
+          autoplay
+          muted
+          loop
+          playsinline
+        >
+          Your browser does not support embedded video.
+          <a
+            href="assets/intro.webm"
+            >Download intro.webm</a
+          >
+        </video>
+      </div>
+
+      <section class="quick-start" aria-labelledby="qs-heading">
+        <h2 class="qs-title" id="qs-heading">Quick install</h2>
+        <div class="qs-window">
+          <div class="qs-chrome" aria-hidden="true">
+            <div class="qs-traffic">
+              <span class="dot dot-red"></span>
+              <span class="dot dot-yellow"></span>
+              <span class="dot dot-green"></span>
+            </div>
+          </div>
+          <div class="qs-body">
+            <p class="qs-comment"># One command — fetches the latest release to ~/.local/bin</p>
+            <p class="qs-line">
+              <span class="qs-prompt">$</span>
+              <code id="install-cmd">curl -fsSL https://raw.githubusercontent.com/MDFahimAnjum/shellclaw/main/install.sh | bash</code>
+            </p>
+            <button type="button" id="copy-btn" class="qs-copy" aria-label="Copy install command" title="Copy">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <p class="qs-hint">Requires <code>curl</code> and <code>jq</code>. See the repo README for Windows and other options.</p>
+      </section>
+
+      <section class="content-section content-section--cards" aria-labelledby="who-heading">
+        <h2 id="who-heading">Who is it for?</h2>
+        <div class="card-grid card-grid--2">
+          <article class="info-card info-card--accent-a">
+            <span class="info-card__eyebrow">Audience</span>
+            <h3>Beginners in terminals</h3>
+            <p>
+              Designed for people who do not want to write and run terminal commands. Rather, you can just ask
+              the LLM model for the task.
+            </p>
+          </article>
+          <article class="info-card info-card--accent-b">
+            <span class="info-card__eyebrow">Audience</span>
+            <h3>Terminal users</h3>
+            <p>
+              If you are already proficient in terminal, it can help you automate your
+              tasks. Helps you manage the system from your phone.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="content-section content-section--cards" aria-labelledby="features-heading">
+        <h2 id="features-heading">Core Features</h2>
+        <div class="card-grid card-grid--features">
+          <article class="feature-card">
+            <span class="feature-card__num" aria-hidden="true">01</span>
+            <h3>Native system context</h3>
+            <p>Full awareness of the host OS (paths, services, and environment)</p>
+          </article>
+          <article class="feature-card">
+            <span class="feature-card__num" aria-hidden="true">02</span>
+            <h3>Terminal-first workflow</h3>
+            <p>Tight integration into shell session and command flow.</p>
+          </article>
+          <article class="feature-card">
+            <span class="feature-card__num" aria-hidden="true">03</span>
+            <h3>Lightweight and fast</h3>
+            <p>Small footprint and responsive UI. Runs natively on terminal. </p>
+          </article>
+          <article class="feature-card">
+            <span class="feature-card__num" aria-hidden="true">04</span>
+            <h3>Optimized agentic workflow</h3>
+            <p>
+              Tuned for efficiency. Minimal agentic loop and code-level safeguards.
+            </p>
+          </article>
+          <article class="feature-card">
+            <span class="feature-card__num" aria-hidden="true">05</span>
+            <h3>Small-model friendly</h3>
+            <p>
+              Works with models under ~10B parameters. Tested with 
+              <code>Qwen3.5:9B</code> and <code>Gamma4:E4B</code> models.
+            </p>
+          </article>
+          <article class="feature-card">
+            <span class="feature-card__num" aria-hidden="true">06</span>
+            <h3>Phone messaging</h3>
+            <p>
+              Operated via external devices like phones.
+            </p>
+          </article>
+          <article class="feature-card">
+            <span class="feature-card__num" aria-hidden="true">07</span>
+            <h3>Built-in SafeGuards</h3>
+            <p>
+              Built-in safeguard system that <em>only allows read operations</em>
+            </p>
+          </article>
+        </div>
+      </section>
+    </div>
+    <script>
+      (function () {
+        var btn = document.getElementById("copy-btn");
+        var el = document.getElementById("install-cmd");
+        if (!btn || !el) return;
+        var text = el.textContent.trim();
+        var labelCopy = "Copy install command";
+        var labelCopied = "Copied to clipboard";
+        var checkSvg =
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+        var copySvg =
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+        btn.addEventListener("click", function () {
+          function ok() {
+            btn.classList.add("is-copied");
+            btn.classList.remove("is-error");
+            btn.setAttribute("aria-label", labelCopied);
+            btn.title = "Copied";
+            btn.innerHTML = checkSvg;
+            btn.disabled = true;
+            setTimeout(function () {
+              btn.classList.remove("is-copied");
+              btn.setAttribute("aria-label", labelCopy);
+              btn.title = "Copy";
+              btn.innerHTML = copySvg;
+              btn.disabled = false;
+            }, 1600);
+          }
+          function fail() {
+            btn.classList.add("is-error");
+            btn.classList.remove("is-copied");
+            btn.setAttribute("aria-label", "Copy failed — select the command manually");
+            setTimeout(function () {
+              btn.classList.remove("is-error");
+              btn.setAttribute("aria-label", labelCopy);
+            }, 2200);
+          }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(ok).catch(fail);
+          } else {
+            fail();
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>

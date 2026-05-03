@@ -9,7 +9,8 @@
 
 ShellClaw is an extremely *lightweight and optimized* LLM-powered terminal assistant TUI for everyday users (not only developers or sysadmins). It diagnoses system problems by running safe read-only commands, explains what it finds in plain English, and proposes solutions.
 
-<video src="https://raw.githubusercontent.com/MDFahimAnjum/shellclaw/main/assets/intro.webm" autoplay muted loop playsinline controls width="100%"></video>
+![ShellClaw terminal demo](assets/intro.gif)
+
 ## Overview
 
 A lightweight harness optimized for terminal workflow and system diagnostics:

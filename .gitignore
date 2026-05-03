@@ -1,0 +1,39 @@
+# Bytecode / cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Test & type / lint caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.pytype/
+
+# Coverage
+.coverage
+.coverage.*
+htmlcov/
+
+# Env tooling
+.tox/
+.nox/
+.venv/
+venv/
+env/
+
+# Packaging / editable installs
+*.egg-info/
+.eggs/
+*.egg
+
+build/
+dist/
+shellclaw.spec
+
+# Editor / OS cruft
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db

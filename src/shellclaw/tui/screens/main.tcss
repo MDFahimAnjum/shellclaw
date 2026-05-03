@@ -1,0 +1,102 @@
+/* Main two-panel layout */
+
+MainScreen {
+    layout: vertical;
+}
+
+#header-row {
+    height: 1;
+    layout: horizontal;
+    background: $primary;
+    color: $text;
+    dock: top;
+}
+
+#header-title {
+    width: 1fr;
+    height: 1;
+    padding: 0 2;
+    content-align: left middle;
+    text-style: bold;
+}
+
+/* Two-panel horizontal split */
+#panels {
+    layout: horizontal;
+    height: 1fr;
+}
+
+/* Left side: reasoning + chat + input stacked */
+#chat-side {
+    width: 1fr;
+    min-width: 30;
+    layout: vertical;
+}
+
+/* Model reasoning stream (fixed viewport; older text scrolls away) */
+#reasoning {
+    height: 6;
+    margin: 0;
+    padding: 0;
+}
+
+/* Left: conversation — must keep 1fr; input stack below uses a fixed height (not auto+1fr). */
+#chat {
+    height: 1fr;
+    min-height: 1;
+    border: solid $primary-darken-2;
+    border-title-color: $primary;
+    border-title-align: left;
+    padding: 0;
+}
+
+/* Chat input stack: fixed height so #input-bar's 1fr does not steal #chat's flex space */
+#input-stack {
+    height: 8;
+    layout: vertical;
+    margin: 0;
+}
+
+#input-title-row {
+    height: 1;
+    width: 100%;
+    layout: horizontal;
+}
+
+#input-title-spacer {
+    width: 1fr;
+    height: 1;
+}
+
+#chat-actions-right {
+    width: auto;
+    height: 1;
+    layout: horizontal;
+    content-align: right middle;
+}
+
+#input-bar {
+    width: 100%;
+    height: 1fr;
+    min-height: 4;
+    border: tall $primary;
+    background: $surface;
+}
+
+/* Right: terminal */
+#terminal {
+    width: 1fr;
+    min-width: 30;
+    border: solid $accent;
+    border-title-color: $accent;
+    border-title-align: left;
+    padding: 0;
+}
+
+/* Health banner — compact single-line strip */
+#health-banner {
+    height: 1;
+    padding: 0;
+    margin: 0;
+    background: $surface;
+}

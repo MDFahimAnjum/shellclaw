@@ -1,0 +1,73 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.os }} / ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        include:
+          - os: linux
+            arch: amd64
+            runner: ubuntu-22.04
+            asset_name: shellclaw-linux-amd64
+          - os: linux
+            arch: arm64
+            runner: ubuntu-22.04-arm
+            asset_name: shellclaw-linux-arm64
+          - os: darwin
+            arch: amd64
+            runner: macos-13
+            asset_name: shellclaw-darwin-amd64
+          - os: darwin
+            arch: arm64
+            runner: macos-14
+            asset_name: shellclaw-darwin-arm64
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Fetch tldr data
+        run: python scripts/fetch_tldr.py
+
+      - name: Build binary with PyInstaller
+        run: |
+          pyinstaller \
+            --name shellclaw \
+            --onefile \
+            --hidden-import shellclaw.tui \
+            --hidden-import shellclaw.providers \
+            --hidden-import shellclaw.agent \
+            --add-data "src/shellclaw/wiki/data:shellclaw/wiki/data" \
+            --add-data "src/shellclaw/tui/screens/main.tcss:shellclaw/tui/screens" \
+            --add-data "src/shellclaw/tui/screens/onboarding.tcss:shellclaw/tui/screens" \
+            --add-data "src/shellclaw/hooks/shellclaw_shell.sh:shellclaw/hooks" \
+            --add-data "src/shellclaw/hooks/shellclaw.fish:shellclaw/hooks" \
+            --paths src \
+            src/shellclaw/__main__.py
+
+      - name: Rename binary
+        run: mv dist/shellclaw dist/${{ matrix.asset_name }}
+
+      - name: Upload binary to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/${{ matrix.asset_name }}
+          generate_release_notes: true

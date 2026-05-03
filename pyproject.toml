@@ -1,0 +1,71 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "shellclaw"
+version = "1.0.0"
+description = "A Linux-specialist TUI agent for every user"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "shellclaw Contributors" }]
+keywords = ["linux", "tui", "llm", "assistant", "terminal"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: System :: Systems Administration",
+]
+dependencies = [
+    "rich>=13.0.0",
+    "textual>=0.70.0",
+    "pyte>=0.8.0",
+    "httpx[http2]>=0.27.0",
+    "pydantic>=2.7.0",
+    "pydantic-settings[toml]>=2.3.0",
+    "ddgs>=9.0.0",
+    "detect-secrets>=1.4.0",
+    "websockets>=12.0",
+]
+
+[project.optional-dependencies]
+web = [
+    "presidio-analyzer>=2.2.0",
+]
+dev = [
+    "pytest>=8.2.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-mock>=3.14.0",
+    "respx>=0.21.0",
+    "pyinstaller>=6.8.0",
+]
+
+[project.scripts]
+shellclaw = "shellclaw.main:main"
+
+[project.urls]
+Homepage = "https://github.com/MDFahimAnjum/shellclaw"
+Repository = "https://github.com/MDFahimAnjum/shellclaw"
+Issues = "https://github.com/MDFahimAnjum/shellclaw/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/shellclaw"]
+
+[tool.hatch.build.targets.wheel.sources]
+"src" = ""
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.pyinstaller]
+name = "shellclaw"
+onefile = true
+paths = ["src"]
+add-data = "src/shellclaw/wiki/data:shellclaw/wiki/data"
+hidden-imports = ["shellclaw.tui", "shellclaw.providers", "shellclaw.agent"]
